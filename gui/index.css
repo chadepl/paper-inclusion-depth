@@ -1,0 +1,93 @@
+:root {
+    --widgets-border-radius: 5px
+}
+
+
+#app {
+    display: grid;
+    grid-template-columns: 300px 2fr 4fr;
+    grid-template-rows: 1fr 1fr;
+    grid-gap: 10px;
+    height: 90vh;
+}
+
+#menu {
+    grid-row: 1 / span 2;
+    grid-column: 1 / 1;
+
+    background-color: rgb(200, 200, 200);
+    border-radius: var(--widgets-border-radius);
+}
+
+#viewer {
+    grid-row: 1 / span 2;
+    grid-column: 2 / 2;
+
+    background-color: rgb(255, 255, 255);
+    border-style: solid;
+    border-width: 2px;
+    border-color: black;
+    border-radius: var(--widgets-border-radius);
+    text-align: center;
+}
+
+#scatter {
+    grid-row: 1 / span 1;
+    grid-column: 3 / 3;
+
+    border-radius: var(--widgets-border-radius);
+    border-style: solid;
+    border-width: 2px;
+    border-color: black;
+
+}
+
+#depth-explorer {
+    grid-row: 2 / span 1;
+    grid-column: 3 / 3;
+
+    border-radius: var(--widgets-border-radius);
+    border-style: solid;
+    border-width: 2px;
+    border-color: black;
+}
+
+body {
+    font-family: sans-serif;
+    font-size: 20px;
+}
+
+h1 {
+    font-weight: bold;
+    font-size: 20px;
+    margin-top: 20px;
+    margin-left: 10px;
+    text-transform: uppercase;
+}
+
+.menu_item {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 20px;
+}
+
+.button {
+    background-color: lightgray;
+    border-radius: 10px;
+    font-family: sans-serif;
+    font-size: 20px;
+    border-width: 0px;
+    padding: 10px 5px 10px 5px;
+}
+
+.button:hover {
+    background-color: gray;
+}
+
+#viewer_canvas {
+    position: relative;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
