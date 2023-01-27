@@ -13,3 +13,5 @@ Decoupling the backend in this way will allow us to implement purpose-dependent 
 For instance, we can build a GUI to explore a particular method, another to compare several methods and another to
 perform a user study.
 
+The backend is structured as a set of libraries that we make accessible through an Flask-based API.
+The API manages all communication issues, further decoupling the development of the libraries.
