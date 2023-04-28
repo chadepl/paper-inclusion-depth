@@ -160,7 +160,7 @@ def get_depth_matrix(depth_data, raw_quantity="max_lc_rc", threshold=None):
 
 if __name__ == "__main__":
 
-    from ellipse_generation import load_ensemble_ellipses, plot_ensemble_ellipses_overlay
+    from backend.src.datasets.ellipse_generation import load_ensemble_ellipses, plot_ensemble_ellipses_overlay
     from skimage.measure import find_contours
 
     import matplotlib.pyplot as plt

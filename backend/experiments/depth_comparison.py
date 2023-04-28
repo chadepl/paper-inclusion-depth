@@ -1,20 +1,22 @@
-
-
-
 """
 Depths can be obtained in different ways
-But their results might vary
-Here we try to ways to obtain depths
-- A: based on distances
-- B: based on the distance matrix
+For instance, there are metric and functional depths
+In this experiment we compare the performance of three depths,
+for estimating the centrality of members of an ensemble
 
-we also compute timings
+We focus on the following depths:
+ - l1 (metric, sdf-based)
+ - band depth (functional, based on set operations on binary masks)
+ - sdf sample depth (functional)
 
-We use different datasets to identify where one
-depth might be better than others.
-Note that the goal of computing depths is to stablish data orderings that make sense.
+We consider different arrangements of synthetic datasets aimed to
+stress each type of depths. The goal of this sub-experiment is to
+determine in which datasets one depth might be better than others.
 
-What can vary in an ensemble of shapes (from top to bottom):
+In addition to visual comparisons, we also compare the centrality scores
+and computation times for different sample sizes.
+
+Some ideas as to what to vary in the different ensembles of shapes:
 - Shape globally
 - Shape locally
 - Reflections
@@ -26,101 +28,135 @@ What can vary in an ensemble of shapes (from top to bottom):
 from time import time
 
 import numpy as np
+import pandas as pd
 from numpy.linalg import norm
-from scipy.spatial.distance import pdist, squareform
-from skimage.draw import disk, rectangle, line, polygon
-from skimage.transform import rotate
+from skimage.draw import disk, ellipse
+from skimage.measure import find_contours
+
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 from backend.src.utils import get_distance_transform
 from backend.src.contour_band_depth import get_depth_matrix, get_contour_band_depths
 from backend.src.vis_utils import plot_contour_spaghetti
-from backend.src.simple_shapes_datasets import get_circles_dataset, get_circles_with_shape_outliers, get_rectangles_dataset, get_lines_dataset, get_shapes_dataset
+
+from backend.src.datasets.simple_shapes_datasets import affine_transforms_dataset
+from backend.src.contour_depths import band_depth, lp_depth, sdf_depth
 
 
 
-num_members = 100
+def plt_ensemble_depths(ensemble_members, depths, title=None, ax=None):
+    color_map = plt.cm.get_cmap("Purples")
+    depths_cols = ((1 - (depths / depths.max())) * 255).astype(int)
+    if ax is None:
+        fig, ax = plt.subplots()
+    ax.imshow(np.zeros_like(ensemble_members[0]), cmap="gray")
+    for i, member in enumerate(ensemble_members):
+        for contour in find_contours(member, 0.5):
+            ax.plot(contour[:, 1], contour[:, 0], c=color_map(depths_cols[i]))
+    ax.set_axis_off()
+    if title:
+        ax.set_title(title)
+    return ax
+
+
+
+transform_type = ["scale", "position", "rotation"][2]
+num_members = 50
 num_cols = num_rows = 300
-#masks = get_circles_dataset(num_cols, num_rows, num_members, variation="radii")
-#masks = get_circles_with_shape_outliers(num_cols, num_rows, num_members, fraction_outliers=0.02)
-#masks = get_rectangles_dataset(num_cols, num_rows, num_members, variation="rotation")
-#masks = get_lines_dataset(num_cols, num_rows, num_members, variation="equispaced")
-masks = get_shapes_dataset(num_cols, num_rows, num_members)
 
-composite = np.zeros_like(masks[0])
-for cm in masks:
-    composite += cm/num_members
+ensemble_members = affine_transforms_dataset(num_cols, num_rows, num_members, transform_type=transform_type)
 
-plt.imshow(composite, cmap="magma")
+plt.imshow(np.zeros_like(ensemble_members[0]), cmap="gray")
+colors = plt.cm.rainbow(np.linspace(0, 1, num_members))
+for i, (member, color) in enumerate(zip(ensemble_members, colors)):
+    for contour in find_contours(member, 0.5):
+        plt.plot(contour[:, 1], contour[:, 0])#, c=color)
+plt.title(f"Dataset ({transform_type})")
+plt.axis("off")
 plt.show()
 
-t_start = time()
 
-depth_data = get_contour_band_depths(masks, 2)
-dm = get_depth_matrix(depth_data)
-th_dm = get_depth_matrix(depth_data, threshold=0.1)
-plt.matshow(th_dm)
-plt.show()
+# Depth comparison
 
-depths_cb = th_dm.mean(axis=1)
+depth_fn = [
+    dict(name="Band depth", fn=band_depth.compute_depths, kwargs=dict(target_mean_depth=1/6)),
+    dict(name="L1 depth", fn=lp_depth.compute_depths, kwargs=dict(pca_comp=2)),
+    dict(name="SDF samples \n (Hausdorff)", fn=sdf_depth.compute_hausdorff_depths, kwargs=dict(d_type="hausdorff")),
+    dict(name="SDF samples \n (L2-norm)", fn=sdf_depth.compute_hausdorff_depths, kwargs=dict(d_type="l2")),
+    dict(name="SDF samples \n (Band)", fn=sdf_depth.compute_hausdorff_depths, kwargs=dict(d_type="band"))
+]
 
-t_end = time()
-
-print(f"Contour band depths took {t_end - t_start} seconds to compute")
-
-t_start = time()
-
-sdf_mat = [get_distance_transform(cm).flatten() for cm in masks]
-sdf_mat = np.array(sdf_mat)
-# sdf_dists = squareform(pdist(sdf_mat))
-
-sdf_l1_depths = []
-for i in range(sdf_mat.shape[0]):
-    vecsum = np.zeros_like(sdf_mat[i, :])
-    for j in range(sdf_mat.shape[0]):
-        if i != j:
-            diff = sdf_mat[j,:] - sdf_mat[i,:]
-            uvec = diff/(norm(diff) + 1e-12)
-            vecsum += uvec
-    vecsum = vecsum / (sdf_mat.shape[0] - 1)
-    sdf_l1_depths.append((i, 1 - norm(vecsum)))
-
-t_end = time()
-
-print(f"SDF-based l1 depths took {t_end - t_start} seconds to compute")
-
-
-depths_sdf = [e[1] for e in sdf_l1_depths]
-depths_sdf = np.array(depths_sdf)
+# depths = dict()
+# for dfn in depth_fn:
+#     t_start = time()
+#     d = dfn["fn"](ensemble_members, **dfn["kwargs"])
+#     t_end = time()
+#     depths[dfn["name"]] = d
+#     print(f"{dfn['name']} took {t_end - t_start} seconds to compute")
 #
-# for i, cm in enumerate(circle_masks):
-#     plt.plot()
+# ncols = np.minimum(3, len(depth_fn))
+# nrows = np.ceil(len(depth_fn) / ncols).astype(int)
+# fig, axs = plt.subplots(ncols=ncols, nrows=nrows, figsize=(ncols*4, nrows*4))
+# axs = axs.flatten()
+# for i, dfn in enumerate(depth_fn):
+#     plt_ensemble_depths(ensemble_members, depths[dfn["name"]], ax=axs[i], title=dfn["name"])
+# plt.show()
 
-desc = False
-order = -1 if desc else 1
 
-fig, ax = plt.subplots()
-plot_contour_spaghetti(masks, memberships=depths_cb, highlight=np.argsort(depths_cb)[::order][:5], ax=ax)
-ax.set_title(f"Contour band depths ({'top' if desc else 'bottom'})")
+# Timings
+sizes = np.linspace(10, 100, 10)
+timings_data = dict()
+bd_times = []
+ld_times = []
+bds = []
+lds = []
+for n in sizes:
+    print(f"Processing size {int(n)}")
+    ensemble_members = affine_transforms_dataset(num_cols, num_rows, int(n), transform_type=transform_type)
+    timings_data[n] = dict()
+    for dfn in depth_fn:
+        t_start = time()
+        d = dfn["fn"](ensemble_members, **dfn["kwargs"])
+        t_end = time()
+        timings_data[n][dfn["name"]] = dict(depths=d, time=t_end-t_start)
+
+
+ncols = np.minimum(3, len(depth_fn))
+nrows = np.ceil(len(depth_fn) / ncols).astype(int)
+fig, axs = plt.subplots(ncols=ncols, nrows=nrows, figsize=(ncols*4, nrows*4))
+axs = axs.flatten()
+for i, dfn in enumerate(depth_fn):
+    plt_ensemble_depths(ensemble_members, timings_data[sizes[-1]][dfn["name"]]["depths"], ax=axs[i], title=dfn["name"])
 plt.show()
 
-fig, ax = plt.subplots()
-plot_contour_spaghetti(masks, memberships=depths_sdf, highlight=np.argsort(depths_sdf)[::order][:5], ax=ax)
-ax.set_title(f"L1 depths ({'top' if desc else 'bottom'})")
+
+sample_size = sizes[-1]
+tmp = pd.DataFrame({k: v["depths"] for k, v in timings_data[sample_size].items()})
+tmp = tmp.iloc[:,[0,1,2]]
+sns.pairplot(tmp)
 plt.show()
 
-import matplotlib.cm as cm
-arg_sort_cb = np.argsort(depths_cb)
-arg_sort_sdf = np.argsort(depths_sdf)
+df_data = []
+for ss in sizes:
+    for k, v in timings_data[ss].items():
+        if k in [dfn["name"] for dfn in depth_fn[:3]]:
+            df_data.append(dict(size=ss, depth_fn=k, time=v["time"]))
+tmp = pd.DataFrame(df_data)
 
-plt.scatter(np.arange(num_members), depths_cb[arg_sort_cb], s=5, c=[cm.magma(i/num_members) for i in arg_sort_cb], zorder=1)
-plt.scatter(np.arange(num_members), depths_sdf[arg_sort_sdf], s=5, c=[cm.magma(i/num_members) for i in arg_sort_sdf], zorder=1)
-
-for i, (i_dcb, dcb) in enumerate(zip(arg_sort_cb, depths_cb[arg_sort_cb])):
-    for j, (i_dsdf, dsdf) in enumerate(zip(arg_sort_sdf, depths_sdf[arg_sort_sdf])):
-        if i_dcb == i_dsdf:
-            plt.plot([i, j], [dcb, dsdf], zorder=0, c=cm.magma(i_dcb/num_members))
-            break
-
-
+fig, ax = plt.subplots(figsize=(5, 5), layout="tight")
+sns.lineplot(tmp, x="size", y="time", hue="depth_fn")
+ax.set_xlabel("Ensemble size")
+ax.set_ylabel("Elapsed time (seconds)")
 plt.show()
+
+
+
+# fig, ax = plt.subplots()
+# ax.plot(sizes, bd_times, label="band depths")
+# ax.plot(sizes, ld_times, label="l1 depths")
+# ax.set_xlabel("Ensemble size")
+# ax.set_ylabel("Time (seconds)")
+# ax.set_title("Sample size vs time for different depth functions")
+# ax.legend()
+# plt.show()

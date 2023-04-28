@@ -7,7 +7,8 @@ from flask import request
 import json
 from flask_cors import CORS
 
-from src import ellipse_generation, contour_boxplot
+from src import contour_boxplot
+from backend.src.datasets import ellipse_generation
 
 app = Flask(__name__)
 CORS(app)

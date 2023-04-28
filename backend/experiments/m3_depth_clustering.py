@@ -5,11 +5,9 @@ depth matrix can be used for clustering.
 
 if __name__ == "__main__":
     import numpy as np
-    import pandas as pd
     import matplotlib.pyplot as plt
     import seaborn as sns
-    from backend.src.ellipse_generation import load_ensemble_ellipses
-    from backend.src.streamline_generation import load_ensemble_streamlines
+    from backend.src.datasets.ellipse_generation import load_ensemble_ellipses
     from backend.src.contour_band_depth import get_subsets, get_contour_band_depths, get_depth_matrix
     from backend.src.vis_utils import plot_contour_spaghetti, plot_grid_masks, plot_band_checking_procedure, plot_contour_boxplot
 

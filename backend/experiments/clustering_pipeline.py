@@ -12,7 +12,7 @@ import seaborn as sns
 
 from backend.src.vis_utils import plot_contour_spaghetti, plot_contour_boxplot, plot_grid_masks, plot_contour
 from backend.src.utils import get_distance_transform
-from backend.src.streamline_generation import load_ensemble_streamlines
+from backend.src.datasets.streamline_generation import load_ensemble_streamlines
 
 np.random.seed(42)
 

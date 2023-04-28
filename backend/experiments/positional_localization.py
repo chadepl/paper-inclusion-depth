@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from skimage.draw import rectangle
 
 from backend.src.utils import get_distance_transform
-from backend.src.simple_shapes_datasets import get_circles_dataset
+
 
 # We will simulate the user zooming in or selecting different parts
 # We will recompute the ordering based on the selection

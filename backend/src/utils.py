@@ -9,13 +9,13 @@ from skimage.draw import polygon_perimeter
 def get_distance_transform(binary_image, tf_type="signed"):
     from scipy.ndimage import distance_transform_edt
     out = np.zeros_like(binary_image)
-    if tf_type == "signed" or tf_type == "inner":
+    if tf_type == "signed" or tf_type == "inner" or tf_type == "unsigned":
         mask = binary_image
         dtf = distance_transform_edt(binary_image)
         out += mask * dtf
         if tf_type == "signed":
             out *= -1
-    if tf_type == "signed" or tf_type == "outer":
+    if tf_type == "signed" or tf_type == "outer" or tf_type == "unsigned":
         mask = 1 - binary_image
         dtf = distance_transform_edt(1 - binary_image)
         out += mask * dtf

@@ -68,7 +68,7 @@ def load_ensemble_streamlines(num_members, num_cols, num_rows, params_set=0, cac
 
     from pathlib import Path
     import pickle
-    path = Path("/Users/chadepl/git/multimodal-contour-vis/backend")  # absolute path in server
+    path = Path("/backend")  # absolute path in server
     path = path.joinpath("data", "streamlines", f"{num_members}-{num_cols}-{num_rows}-{params_set}-{random_state}.pkl")
     print(Path(__name__).absolute())
 

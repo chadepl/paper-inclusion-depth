@@ -6,7 +6,7 @@ cardinality.
 
 import numpy as np
 
-from utils import get_border_raster, get_distance_transform
+from utils import get_distance_transform
 
 def dice_coefficient(arr1, arr2):
     """
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     from skimage.measure import find_contours
     import matplotlib.pyplot as plt
 
-    from ellipse_generation import load_ensemble_ellipses
+    from backend.src.datasets.ellipse_generation import load_ensemble_ellipses
     from utils import get_border_raster
 
     demo = ["surface-dice"][0]
