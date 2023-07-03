@@ -1,15 +1,15 @@
 # multimodal-contour-vis
 
-
-This repository implements different methods to visualize ensembles of contours by aggregating them.
-
-The tool has a server and gui component. For the former we use Python and for the latter JS.
+A library for computing depths of 2D and 3D contours. 
+Contours are curves that divide the space into inner and outer regions.
 
 
-## Running the tool
+## Setup
 
-### Server
+To build and install this library run the following commands:
+
+- `python -m build`
+- `pip install .`
 
 
-### GUI
- - `npm install --global http-server`
+## Demo
