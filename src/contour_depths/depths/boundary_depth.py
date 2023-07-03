@@ -14,6 +14,27 @@ def compute_depths(data,
                    modified=False,
                    return_data_mat=False,
                    times_dict=None):
+    """
+    Calculate depth of a list of contours using the boundary depth (BoD) method.
+    :param data: list
+        List of contours to calculate the BoD from. A contour is assumed to be
+        represented as a binary mask with ones denoting inside and zeros outside
+        regions.
+    :param modified: bool
+        Whether to use or not the modified BoD (mBoD). This reduces the sensitivity of
+        the method to outliers but yields more informative depth estimates when curves
+        cross over a lot.
+    :param return_data_mat: ndarray
+        If true, in addition to the depths, returns the raw depth matrix which is of
+        dimensions 2 x n x n, where n = len(data) and the first dimension indexes the
+        in/out proportion counts.
+    :param times_dict: dict
+        If a dict is passed as `times_dict`, the times that different stages of the method
+        take are logged to this dict.
+    :return:
+        depths: ndarray
+        depth_matrix: ndarray
+    """
 
     record_times = False
     if times_dict is not None and type(times_dict) == dict:
