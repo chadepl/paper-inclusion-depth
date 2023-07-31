@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from backend.src.vis_utils import plot_contour_spaghetti, plot_contour_boxplot
+from src.contour_depths.vis_utils import plot_contour_spaghetti, plot_contour_boxplot
 
 #############
 # LOAD DATA #
@@ -41,31 +41,36 @@ selected_datasets = [
     # "cont_mag_sym",
     # "cont_mag_peaks",
     # "cont_shape_in",
-    "cont_shape_out",
-    # "cont_topo",
+    # "cont_shape_out",
+    "cont_topo",
 ]
 
 selected_methods = [
-    # "bad",
-    # "mbad",
-    "mtbad",
-    # "bod_base",
-    "bod_fast",
-    # "bod_nest",
-    "mbod_nest",
-    # "mbod_l2"
+    "cbd",
+    "mcbd",
+    "bod",
+    "mbod",
 ]
 
 selected_methods_families = {
-    "bad": "red",
+    "cbd": "red",
     "bod": "blue"
 }
+
+selected_replica = dict(
+    no_cont=0,
+    cont_mag_sym=0,
+    cont_mag_peaks=0,
+    cont_shape_in=2,
+    cont_shape_out=0,
+    cont_topo=0
+)[selected_datasets[0]]
 
 # Filtering
 df_exp = df_exp.loc[df_exp["dataset_name"].apply(lambda v: v in selected_datasets)]
 df_exp = df_exp.loc[df_exp["method"].apply(lambda v: v in selected_methods)]
 df_exp = df_exp.loc[df_exp["method_family"].apply(lambda v: v in list(selected_methods_families.keys()))]
-df_exp = df_exp.loc[df_exp["replication_id"] == 6]  # 0, 2, 8, 9
+df_exp = df_exp.loc[df_exp["replication_id"] == selected_replica]  # 0, 2, 8, 9
 df_exp = df_exp.loc[df_exp["size"] == 100]
 
 ###############
@@ -95,12 +100,17 @@ for index, row in df_outs.iterrows():
     with open(row["dataset_path"], "rb") as f:
         ensemble, labels = pickle.load(f)
     outliers_idx = np.where(labels == 1)[0]
+
+    # Spaghetti plot with outliers highlighted
+
     fig, ax = plt.subplots(ncols=1, layout="tight", figsize=(10, 10))
     lab_sort = np.argsort(np.array(labels))
     plot_contour_spaghetti([ensemble[i] for i in lab_sort], arr=[labels[i] for i in lab_sort], is_arr_categorical=True,
-                           linewidth=5, alpha=0.5, smooth_line=False, ax=ax)
+                           linewidth=1, alpha=0.5, smooth_line=False, ax=ax)
     plt.show()
-    fig.savefig(f"/Users/chadepl/Downloads/{row['dataset_name']}-{row['replication_id']}.png")
+    fig.savefig(f"/Users/chadepl/Downloads/spa_outs-{row['dataset_name']}-{row['replication_id']}.svg")
+
+
     # num_out = np.where(np.isclose(row["depths mtbad"], 0))[0].size
     # print(row["depths mtbad"])
     # print(f" - {num_out}")
@@ -108,10 +118,39 @@ for index, row in df_outs.iterrows():
     for ri in row.index:
         if "depths" in ri:
             print(ri)
+            depths_ri = row[ri]
             fig, ax = plt.subplots(ncols=1, layout="tight", figsize=(10, 10))
             # thresholds: topo (0.11)
-            plot_contour_boxplot(ensemble, row[ri], outlier_type="tail", epsilon_out=10, smooth_line=False, ax=ax)
+            plot_contour_boxplot(ensemble, depths_ri, outlier_type="tail", epsilon_out=int(depths_ri.size * 0.2), smooth_line=False, ax=ax)
             # ax.set_title(ri)
             plt.show()
-            fig.savefig(f"/Users/chadepl/Downloads/{row['dataset_name']}-{ri}-{row['replication_id']}.png")
+            fig.savefig(f"/Users/chadepl/Downloads/cbp-{row['dataset_name']}-{ri}-{row['replication_id']}.svg")
+
+            # Spaghetti plot with depths
+            vmin = vmax = 0
+            if "cbd" in ri:
+                vmax = 1
+            if "bod" in ri:
+                vmax = 0.5
+
+            fig, ax = plt.subplots(ncols=1, layout="tight", figsize=(10, 10))
+            lab_sort = np.argsort(np.array(labels))
+            plot_contour_spaghetti(ensemble, arr=depths_ri,
+                                   is_arr_categorical=False,
+                                   linewidth=1, alpha=0.5, smooth_line=False,
+                                   # vmin=vmin, vmax=vmax,
+                                   ax=ax)
+            plt.show()
+            fig.savefig(f"/Users/chadepl/Downloads/spa_depths-{row['dataset_name']}-{ri}-{row['replication_id']}.svg")
     break
+
+
+# color bar
+
+x = np.linspace(0, 1, 100, ).reshape((1, -1))
+x = np.repeat(x, 50, axis=0)
+fig, ax = plt.subplots(figsize=(10, 3), layout="tight")
+ax.matshow(x, cmap="magma")
+ax.set_axis_off()
+#plt.show()
+fig.savefig("/Users/chadepl/Downloads/colorbar.png")

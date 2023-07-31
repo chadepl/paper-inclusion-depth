@@ -11,7 +11,7 @@ def get_han_slice_ensemble(num_rows, num_cols, patient_id=0, structure_name="Par
     patient = ["HCAI-036", "HCAI-010"][patient_id]
 
     fn = Path(
-        f"/Users/chadepl/git/multimodal-contour-vis/backend/data/han_ensembles/ensemble-{structure_name}-hptc/{patient}/ed_ensemble-v4_size-subsets-31-{structure_name}.npz").resolve()
+        f"/Users/chadepl/git/multimodal-contour-vis/data/han_ensembles/ensemble-{structure_name}-hptc/{patient}/ed_ensemble-v4_size-subsets-31-{structure_name}.npz").resolve()
 
     # fn = Path(f"/Users/chadepl/git/multimodal-contour-vis/backend/data/han_ensembles/hptc-{structure_name}-{patient}-{slice_num}.npz").resolve()
     print(fn)

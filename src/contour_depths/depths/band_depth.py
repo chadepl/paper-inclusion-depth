@@ -38,9 +38,17 @@ def compute_depths(data,
         depth_matrix: ndarray
     """
 
+    if modified:
+        return contour_band_depth_modified(data, band_size=band_size, target_mean_depth=target_mean_depth, times_dict=times_dict)
+    else:
+        return contour_band_depth_strict(data, band_size=band_size, times_dict=times_dict)
+
+
+def contour_band_depth_strict(data,
+                              band_size=2,
+                              times_dict=None):
     record_times = False
     if times_dict is not None and type(times_dict) == dict:
-        print("[cbd] Logging times ...")
         record_times = True
 
     if record_times:
@@ -76,6 +84,70 @@ def compute_depths(data,
             union = bc["union"]
             intersection = bc["intersection"]
 
+            in_band = 0
+            if i in idx_subset:  # contour is in band border
+                in_band = 1
+            else:
+                intersect_in_contour = np.all(((intersection + binary_mask) == 2).astype(float) == intersection)
+                contour_in_union = np.all(((union + binary_mask) == 2).astype(float) == binary_mask)
+                if intersect_in_contour and contour_in_union:
+                    in_band = 1
+
+            depth_matrix[i, j] = in_band
+
+    depths = depth_matrix.mean(axis=1)
+
+    if record_times:
+        t_end_core = time()
+
+    if record_times:
+        times_dict["time_preproc"] = t_end_preproc - t_start_preproc
+        times_dict["time_core"] = t_end_core - t_start_core
+
+    return depths
+
+
+def contour_band_depth_modified(data,
+                                band_size=2,
+                                target_mean_depth: float = 1 / 6,
+                                times_dict=None):
+    record_times = False
+    if times_dict is not None and type(times_dict) == dict:
+        record_times = True
+
+    if record_times:
+        t_start_preproc = time()
+
+    num_contours = len(data)
+    subsets = get_subsets(num_contours, band_size)
+    num_subsets = len(subsets)
+
+    # Compute fractional containment table
+
+    # - Each subset defines a band. To avoid redundant computations we
+    #   precompute these bands.
+    band_components = []
+    for i, subset in enumerate(subsets):
+        bc = get_band_components([data[j] for j in subset])  # {union:, intersection:, band:}
+        bc["members_id"] = i
+        bc["members_idx"] = subset
+        band_components.append(bc)
+
+    # - Get fractional containment tables
+    depth_matrix = np.zeros((num_contours, num_subsets))
+
+    if record_times:
+        t_end_preproc = time()
+        t_start_core = time()
+
+    for i, binary_mask in enumerate(data):
+        for j, subset in enumerate(subsets):
+
+            bc = band_components[j]
+            idx_subset = bc["members_idx"]
+            union = bc["union"]
+            intersection = bc["intersection"]
+
             if i in idx_subset:  # contour is in band border
                 p_outside_of_band = 0
             else:
@@ -91,45 +163,35 @@ def compute_depths(data,
 
             depth_matrix[i, j] = p_outside_of_band
 
+    def mean_depth_deviation(mat, threshold, target):
+        return target - (((mat < threshold).astype(float)).sum(axis=1) / num_subsets).mean()
+
+    depth_matrix_t = depth_matrix.copy()
+    if target_mean_depth is None:  # No threshold
+        print("[cbd] Using modified band depths without threshold")
+        depth_matrix_t = 1 - depth_matrix_t
+    else:
+        print(f"[cbd] Using modified band depth with specified threshold {target_mean_depth}")
+        try:
+            t = bisect(lambda v: mean_depth_deviation(depth_matrix_t, v, target_mean_depth), depth_matrix_t.min(),
+                       depth_matrix_t.max())
+        except:
+            print("[cbd] Binary search failed to converge")
+            t = depth_matrix_t.mean()
+        print(f"[cbd] Using t={t}")
+
+        depth_matrix_t = (depth_matrix < t).astype(float)
+
+    depths = depth_matrix_t.mean(axis=1)
+
     if record_times:
         t_end_core = time()
-
-    # binary search to ensure depth_matrix has a
-    if modified:
-        def mean_depth_deviation(mat, threshold, target):
-            return target - (((mat < threshold).astype(float)).sum(axis=1) / num_subsets).mean()
-
-        depth_matrix_t = depth_matrix.copy()
-        if target_mean_depth is None:  # No threshold
-            print("[cbd] Using modified band depths without threshold")
-            depth_matrix_t = 1 - depth_matrix_t
-        else:
-            print(f"[cbd] Using modified band depth with specified threshold {target_mean_depth}")
-            try:
-                t = bisect(lambda v: mean_depth_deviation(depth_matrix_t, v, target_mean_depth), depth_matrix_t.min(),
-                           depth_matrix_t.max())
-            except:
-                print("[cbd] Binary search failed to converge")
-                t = depth_matrix_t.mean()
-            print(f"[cbd] Using t={t}")
-
-            depth_matrix_t = (depth_matrix < t).astype(float)
-
-    else:  # not modified version
-        print("[bd] Using strict band depths")
-        depth_matrix_t = (depth_matrix == 0).astype(float)
-
-    depth_matrix_t = depth_matrix_t
-    depths = depth_matrix_t.sum(axis=1) / num_subsets
 
     if record_times:
         times_dict["time_preproc"] = t_end_preproc - t_start_preproc
         times_dict["time_core"] = t_end_core - t_start_core
 
-    if return_data_mat:
-        return depths, depth_matrix_t
-    else:
-        return depths
+    return depths
 
 
 def get_band_components(band_members):

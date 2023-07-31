@@ -42,7 +42,7 @@ def plot_contour(contour, ax=None, plot_line=True, line_kwargs=None, plot_marker
         markers_kwargs = {"color": "black"}
 
     for c in contour:
-        if smooth_line:
+        if smooth_line and c.shape[0] > 3:  # smoothing only wƒboxorks if m > k and we use k=3
             c = get_smooth_contour(c, contour_perc_points=0.7, smoothing=1500)
         if plot_line:
             pobj.plot(c[:, 1], c[:, 0], **line_kwargs)
@@ -106,8 +106,11 @@ def plot_contour_spaghetti(masks, under_mask=None, arr=None, is_arr_categorical=
     return ax
 
 
-def plot_contour_boxplot(masks, depths, outlier_type="tail", epsilon_out=3, show_out=True, under_mask=None, ax=None,
-                         smooth_line=True):
+def plot_contour_boxplot(masks, depths,
+                         outlier_type="tail", epsilon_out=3, show_out=True,
+                         under_mask=None,
+                         smooth_line=True, axis_off=True,
+                         ax=None):
     """
     Renders a contour boxplot using depth data and the provided masks.
     If a list of member_ids is supplied (subset_idx), the contour boxplot
@@ -123,8 +126,8 @@ def plot_contour_boxplot(masks, depths, outlier_type="tail", epsilon_out=3, show
         cbp_outliers = np.where(depths <= epsilon_out)[0]  # should be 0
     elif outlier_type == "tail":
         cbp_outliers = np.argsort(depths)[:int(epsilon_out)]  # should be 0
-    cbp_band100 = np.setdiff1d((np.argsort(depths)[::-1]),
-                               np.union1d(cbp_median, cbp_outliers))
+    sorted_depths = np.argsort(depths)[::-1]
+    cbp_band100 = sorted_depths[~np.in1d(sorted_depths, cbp_outliers)]
     cbp_band50 = cbp_band100[:cbp_band100.size // 2]
 
     cbp_bands = np.setdiff1d(np.arange(depths.size), np.union1d(cbp_outliers, cbp_median))
@@ -137,7 +140,8 @@ def plot_contour_boxplot(masks, depths, outlier_type="tail", epsilon_out=3, show
     # Plotting
     if ax is None:
         fig, ax = plt.subplots(figsize=(10, 10), layout="tight")
-    ax.set_axis_off()
+    if axis_off:
+        ax.set_axis_off()
 
     if under_mask is None:
         under_mask_alpha = np.ones(list(masks[0].shape) + [3, ])
@@ -176,8 +180,7 @@ def plot_contour_boxplot(masks, depths, outlier_type="tail", epsilon_out=3, show
     plot_contour(contours, line_kwargs=dict(c="yellow", linewidth=5), smooth_line=smooth_line, ax=ax)
 
     # trimmed mean
-    cbp_trimmed_mean_idx = np.setdiff1d((np.argsort(depths)[::-1]), cbp_outliers)[:2]
-    masks_arr = np.array([m.flatten() for m in [masks[i] for i in cbp_trimmed_mean_idx]])
+    masks_arr = np.array([m.flatten() for m in [masks[i] for i in cbp_band100]])
     masks_mean = masks_arr.mean(axis=0)
     contours = find_contours(masks_mean.reshape(masks[0].shape), level=0.5)
     plot_contour(contours, line_kwargs=dict(c="dodgerblue", linewidth=5), smooth_line=smooth_line, ax=ax)

@@ -36,65 +36,130 @@ def compute_depths(data,
         depth_matrix: ndarray
     """
 
+    if modified:
+        return boundary_depth_modified(data, times_dict=times_dict)
+    else:
+        return boundary_depth_strict(data, times_dict=times_dict)
+
+
+def boundary_depth_strict(data,
+                          times_dict=None):
     record_times = False
     if times_dict is not None and type(times_dict) == dict:
-        print("[cbd] Logging times ...")
         record_times = True
 
     if record_times:
         t_start_preproc = time()
 
     num_contours = len(data)
-    from skimage.segmentation import find_boundaries
-    contours_boundaries = [find_boundaries(c, mode="inner", connectivity=1) for c in data]
-    boundaries_coords = [np.where(cb == 1) for cb in contours_boundaries]
 
+    # - Get fractional inside/outside tables
     if record_times:
         t_end_preproc = time()
         t_start_core = time()
 
     depths = []
-    # - Get fractional inside/outside tables
-    depth_matrix_in = np.zeros((num_contours, num_contours))
-    depth_matrix_out = np.zeros((num_contours, num_contours))
-
     for i in range(num_contours):
-
         binary_mask_i = data[i]
-        boundary_mask_i = contours_boundaries[i]
-        boundary_coords_i = boundaries_coords[i]
-
+        in_count = 0
+        out_count = 0
         for j in range(num_contours):
             binary_mask_j = data[j]
-            boundary_mask_j = contours_boundaries[j]
-            boundary_coords_j = boundaries_coords[j]
+            intersect = ((binary_mask_i + binary_mask_j) == 2).astype(float)
 
-            in12 = in_func(boundary_mask_i, binary_mask_j)
-            in21 = in_func(boundary_mask_j, binary_mask_i)
-            out12 = out_func(boundary_mask_i, binary_mask_j)
-            out21 = out_func(boundary_mask_j, binary_mask_i)
+            # inside/outside check
+            is_in = np.all(binary_mask_i == intersect)
+            is_out = np.all(binary_mask_j == intersect)
+            if is_in and not is_out:
+                in_count += 1
+            if is_out and not is_in:
+                out_count += 1
 
-            depth_matrix_in[i, j] = np.minimum(in12, out21)
-            depth_matrix_out[i, j] = np.minimum(in21, out12)
+        depths.append(np.minimum(in_count/num_contours, out_count/num_contours))
 
     if record_times:
         t_end_core = time()
-
-    if not modified:
-        depth_matrix_in = (depth_matrix_in == 1).astype(float)
-        depth_matrix_out = (depth_matrix_out == 1).astype(float)
-
-    depth_matrix = np.stack([depth_matrix_in, depth_matrix_out])
-    depths = depth_matrix.mean(axis=2).min(axis=0)# np.minimum(depth_matrix.mean(axis=0), depth_matrix_out.mean(axis=1)).flatten()
 
     if record_times:
         times_dict["time_preproc"] = t_end_preproc - t_start_preproc
         times_dict["time_core"] = t_end_core - t_start_core
 
-    if return_data_mat:
-        return depths, depth_matrix
-    else:
-        return depths
+    return np.array(depths, dtype=float)
+
+
+def boundary_depth_modified(data,
+                            times_dict=None):
+    record_times = False
+    if times_dict is not None and type(times_dict) == dict:
+        record_times = True
+
+    if record_times:
+        t_start_preproc = time()
+
+    num_contours = len(data)
+    # from skimage.segmentation import find_boundaries
+    # contours_boundaries = [find_boundaries(c, mode="inner", connectivity=1) for c in data]
+    # boundaries_coords = [np.where(cb == 1) for cb in contours_boundaries]
+
+    # - Get fractional inside/outside tables
+    depth_matrix_in = np.zeros((num_contours, num_contours))
+    depth_matrix_out = np.zeros((num_contours, num_contours))
+
+    if record_times:
+        t_end_preproc = time()
+        t_start_core = time()
+
+    for i in range(num_contours):
+        binary_mask_i = data[i]
+        # boundary_mask_i = contours_boundaries[i]
+        # boundary_coords_i = boundaries_coords[i]  # Could improve performanec
+
+        for j in range(num_contours):
+            binary_mask_j = data[j]
+            # boundary_mask_j = contours_boundaries[j]
+            # boundary_coords_j = boundaries_coords[j]   # Could improve performanec
+
+            # v1
+            # in12 = in_func(boundary_mask_i, binary_mask_j)  # fraction bi in j
+            # in21 = in_func(boundary_mask_j, binary_mask_i)  # fraction bj in i
+            # out12 = out_func(boundary_mask_i, binary_mask_j)  # fraction bi in -j
+            # out21 = out_func(boundary_mask_j, binary_mask_i)   # fraction bj in -i
+            #
+            # depth_matrix_in[i, j] = np.minimum(in12, out21)
+            # depth_matrix_out[i, j] = np.minimum(in21, out12)
+
+            # v2
+            # depth_matrix_in[i, j] = in_func(boundary_mask_i, binary_mask_j)  # fraction bi in j
+            # depth_matrix_out[i, j] = out_func(boundary_mask_i, binary_mask_j)  # fraction bi in -j
+
+            # the smaller eps_out becomes the less outside it is
+            # so when it is zero, we now it is inside
+            # we add a larger number to in matrix the more inside i is
+            eps_out = (binary_mask_i - binary_mask_j)
+            eps_out = (eps_out > 0).sum()
+            eps_out = eps_out / (binary_mask_i.sum() + np.finfo(float).eps)
+            depth_matrix_in[i, j] = 1 - eps_out
+
+            # the smaller eps_in becomes, the less j is outside of i
+            # so when it is zero, we know i is outside of j
+            # we add a larger number to out matrix the more outside i is
+            eps_in = (binary_mask_j - binary_mask_i)
+            eps_in = (eps_in > 0).sum()
+            eps_in = eps_in / (binary_mask_j.sum() + np.finfo(float).eps)
+            depth_matrix_out[i, j] = 1 - eps_in
+
+    depth_matrix = np.stack([depth_matrix_in, depth_matrix_out])
+    depths = depth_matrix.mean(axis=2).min(
+        axis=0)  # np.minimum(depth_matrix.mean(axis=0), depth_matrix_out.mean(axis=1)).flatten()
+
+    if record_times:
+        t_end_core = time()
+
+    if record_times:
+        times_dict["time_preproc"] = t_end_preproc - t_start_preproc
+        times_dict["time_core"] = t_end_core - t_start_core
+
+    return depths
 
 
 def in_func(b1, m2):

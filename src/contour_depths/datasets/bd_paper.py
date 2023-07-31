@@ -37,6 +37,7 @@ def get_xy_coords(angles, radii, scale_x=1, scale_y=1):
     y = radii * np.sin(angles.repeat(num_members, axis=0))
 
     # Compute bounding box to ensure it fits in frame
+    # TODO: error because this makes each ensemble different
     xlim = np.maximum(np.abs(x.min()), np.abs(x.max()))
     ylim = np.maximum(np.abs(y.min()), np.abs(y.max()))
     lim = np.maximum(xlim, ylim) + 0.2  # add some padding
@@ -215,8 +216,7 @@ def get_contaminated_contour_ensemble_topological(num_members, num_rows, num_col
     random_ys = np.array([ys[i, rp] for i, rp in enumerate(random_pos)]).reshape(-1, 1) - num_rows // 2
 
     magnitude = np.sqrt(np.square(random_xs) + np.square(random_ys))
-    angle = np.array([thetas[0, rp] for i, rp in enumerate(random_pos)]).reshape(-1,
-                                                                                 1)  # np.arctan2(random_xs, random_ys)
+    angle = np.array([thetas[0, rp] for i, rp in enumerate(random_pos)]).reshape(-1, 1)
 
     topo_feat_sign = np.random.random(num_members)
     topo_feat_sign[topo_feat_sign > 0.5] = 1
@@ -286,14 +286,14 @@ def get_problematic_case(num_rows, num_cols):
     return ensemble
 
 def get_han_dataset_ParotidR(num_rows, num_cols):
-    from backend.src.datasets.han_ensembles import get_han_slice_ensemble
+    from src.contour_depths.datasets.han_ensembles import get_han_slice_ensemble
     img, gt, ensemble_masks = get_han_slice_ensemble(num_rows, num_cols, patient_id=0, structure_name="Parotid_R",
                                                      slice_num=41)
     return img, gt, ensemble_masks
 
 
 def get_han_dataset_BrainStem(num_rows, num_cols):
-    from backend.src.datasets.han_ensembles import get_han_slice_ensemble
+    from src.contour_depths.datasets.han_ensembles import get_han_slice_ensemble
     img, gt, ensemble_masks = get_han_slice_ensemble(num_rows, num_cols, patient_id=0, structure_name="BrainStem",
                                                      slice_num=31)
     return img, gt, ensemble_masks
