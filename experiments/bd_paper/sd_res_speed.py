@@ -94,7 +94,7 @@ sns_lp = sns.lineplot(df, x="size", y="time_full", hue="method", palette=selecte
 #            order=2, ci=None, scatter_kws={"s": 80}, color="green", ax=ax);
 
 sns_lp.set(yscale='log', xscale="log")
-ax.set_title("Runtimes vs Ensemble Size for \n Contour Band Depth and Boundary Depth ")
+ax.set_title("Runtimes vs Ensemble Size for \n Contour Band Depth and Inclusion Depth ")
 ax.set_ylabel("Time (seconds)")
 ax.set_xlabel("Size")
 
@@ -109,9 +109,9 @@ for line in leg.get_lines():
 print(leg.texts)
 for t in leg.texts:
     if t.get_text() == "bod":
-        t.set_text("BoD")
+        t.set_text("ID")
     if t.get_text() == "mbod":
-        t.set_text("mBoD")
+        t.set_text("eID")
     if t.get_text() == "cbd":
         t.set_text("CBD")
     if t.get_text() == "mcbd":

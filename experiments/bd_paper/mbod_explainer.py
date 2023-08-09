@@ -6,23 +6,20 @@ if __name__ == "__main__":
     from skimage.io import imread
     import matplotlib.pyplot as plt
 
-    def pin(bi, bj):
-        eps_out = (bi - bj)
-        eps_out = (eps_out > 0).sum()
-        eps_out = eps_out / (bi.sum() + np.finfo(float).eps)
-        return 1 - eps_out
-
-    def pout(bi, bj):
-        eps_in = (bj - bi)
-        eps_in = (eps_in > 0).sum()
-        eps_in = eps_in / (bj.sum() + np.finfo(float).eps)
-        return 1 - eps_in
+    def epsilon_in(bi, bj):
+        if np.sum(bi) == 0:
+            res = 0
+        else:
+            res = (bi - bj)
+            res = (res > 0).sum()  # set difference
+            res = res / (bi.sum() + np.finfo(float).eps)
+        return 1 - res
 
     data_dir = Path("../../data/mbod-shapes")
 
-    cases = dict(c1=[1, 2], c2=[1, 3], c3=[2, 4], c4=[2, 1], c5=[5, 6], c6=[5, 7])
+    cases = dict(c1=[2, 1], c2=[3, 1], c3=[4, 2], c4=[1, 2], c5=[5, 6], c6=[5, 7])
 
-    case = 6
+    case = 1
     bi_id = cases[f"c{case}"][0]
     bj_id = cases[f"c{case}"][1]
 
@@ -34,7 +31,7 @@ if __name__ == "__main__":
     plt.imshow(bi + bj)
     plt.show()
 
-    print(f"Case {case}: pin: {pin(bi, bj)} | pout: {pout(bi, bj)}")
+    print(f"Case {case}: pin: {epsilon_in(bi, bj)} | pout: {epsilon_in(bj, bi)}")
 
     # Case 1: pin: 0.5237104300668433 | pout: 1.0
     # Case 2: pin: 0.6077689494261571 | pout: 0.9857325492201483
