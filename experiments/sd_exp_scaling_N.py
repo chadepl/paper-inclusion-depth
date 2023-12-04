@@ -3,12 +3,13 @@ from pathlib import Path
 from time import time
 import numpy as np
 
-from src.contour_depths.depths import band_depth, boundary_depth
-from src.contour_depths.datasets.circles import circles_different_radii_distribution
-# from src.contour_depths.datasets.bd_paper import get_contaminated_contour_ensemble_center, \
+import sys
+sys.path.insert(0, "..")
+from src.depths import band_depth, inclusion_depth
+# from src.contour_depths.datasets.id_paper import get_contaminated_contour_ensemble_center, \
 #     get_contaminated_contour_ensemble_magnitude, get_contaminated_contour_ensemble_shape, \
 #     get_contaminated_contour_ensemble_topological
-from src.contour_depths.datasets.bd_paper_v2 import dataset_no_outliers, \
+from src.datasets.id_paper_v2 import dataset_no_outliers, \
     dataset_sym_mag_outliers, \
     dataset_peaks_mag_outliers, \
     dataset_in_shape_outliers, \
@@ -66,7 +67,7 @@ methods = dict(
     # cbd=lambda ensemble, td: band_depth.compute_depths(ensemble, modified=False, times_dict=td),
     # mcbd=lambda ensemble, td: band_depth.compute_depths(ensemble, modified=True, target_mean_depth=None, times_dict=td),
     # bod=lambda ensemble, td: boundary_depth.compute_depths(ensemble, modified=False, times_dict=td),
-    mbod=lambda ensemble, td: boundary_depth.compute_depths(ensemble, modified=True, times_dict=td)
+    mbod=lambda ensemble, td: inclusion_depth.compute_depths(ensemble, modified=True, times_dict=td)
 )
 
 for method_name, method_fn in methods.items():

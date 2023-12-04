@@ -8,10 +8,13 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+import sys
+sys.path.insert(0, "..")
 from src.vis_utils import plot_contour_spaghetti, plot_contour_boxplot
-from src.contour_depths.datasets import han_ensembles
-from src.contour_depths.datasets.bd_paper import get_han_dataset_ParotidR, get_han_dataset_BrainStem
-from src.contour_depths.depths import band_depth, boundary_depth
+from src.datasets import han_ensembles
+from src.datasets.id_paper import get_han_dataset_ParotidR, get_han_dataset_BrainStem
+from src.depths import band_depth, inclusion_depth
 
 structure_name = ["Parotid_R", "BrainStem"][0]
 
@@ -102,7 +105,7 @@ if bod_depths_path.exists():
 else:
     print("- Results did not exist. Computing ...")
     t_start = time()
-    depths_bod = boundary_depth.compute_depths(ensemble, modified=False)
+    depths_bod = inclusion_depth.compute_depths(ensemble, modified=False)
     t_end = time()
     times["bod"] = t_end - t_start
 
@@ -122,7 +125,7 @@ if mbod_depths_path.exists():
 else:
     print("- Results did not exist. Computing ...")
     t_start = time()
-    depths_mbod = boundary_depth.compute_depths(ensemble, modified=True)
+    depths_mbod = inclusion_depth.compute_depths(ensemble, modified=True)
     t_end = time()
     times["mbod"] = t_end - t_start
 

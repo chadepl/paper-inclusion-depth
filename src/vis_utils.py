@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from scipy.interpolate import splprep, splev
 
-from .contour_band_depth import get_band_components
+from .depths.band_depth import get_band_components
 
 # colors = ["#1b9e77", "#d95f02", "#7570b3", "red"]
 colors = ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f', '#e5c494', '#b3b3b3', "red"]
@@ -152,9 +152,11 @@ def plot_contour_boxplot(masks, depths,
 
     # Visual encoding
     if len(cbp_band50 >= 2):
-        b50 = get_band_components(masks, cbp_band50)["band"]
+        b50_components = get_band_components([masks[mid] for mid in cbp_band50])
+        b50 = b50_components["union"] - b50_components["intersection"]
     if len(cbp_band100 >= 2):
-        b100 = get_band_components(masks, cbp_band100)["band"]
+        b100_components = get_band_components([masks[mid] for mid in cbp_band100])
+        b100 = b100_components["union"] - b100_components["intersection"]
 
     if show_out:
         for outlier_id in cbp_outliers:

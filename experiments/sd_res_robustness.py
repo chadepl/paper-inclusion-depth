@@ -15,7 +15,7 @@ from skimage.io import imsave
 
 import sys
 sys.path.insert(0, "..")
-from src.datasets.bd_paper_v2 import get_population_mean
+from src.datasets.id_paper_v2 import get_population_mean
 
 #############
 # LOAD DATA #

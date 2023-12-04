@@ -27,7 +27,7 @@ from scipy.interpolate import RegularGridInterpolator
 from skimage.measure import find_contours
 from skimage.measure import label
 
-from ..utils import get_distance_transform
+from ..src.utils import get_distance_transform
 
 
 def get_border_functions(contours, ensemble, sdfs=None, return_sdfs=False, return_border_coords=False):
