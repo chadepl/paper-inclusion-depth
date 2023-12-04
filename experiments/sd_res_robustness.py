@@ -13,7 +13,9 @@ import seaborn as sns
 
 from skimage.io import imsave
 
-from src.contour_depths.datasets.bd_paper_v2 import get_population_mean
+import sys
+sys.path.insert(0, "..")
+from src.datasets.bd_paper_v2 import get_population_mean
 
 #############
 # LOAD DATA #
@@ -151,9 +153,9 @@ for index, row in df_ins.iterrows():
             entry[f"pop_error-trimmed_mean_{depth_method}"] = np.square(trimmed_mean - f_mask).sum()/(mask_size * mask_size)
 
     name = f"{row['dataset_name']}_{row['replication_id']}"
-    imsave(f"/Users/chadepl/Downloads/tempouts/{name}-sample_mean.png", sample_mean)
-    imsave(f"/Users/chadepl/Downloads/tempouts/{name}-mvm.png", mv_median)
-    imsave(f"/Users/chadepl/Downloads/tempouts/{name}-trimmed_mean.png", sample_mean)
+    imsave(f"results/sd_res_robustness/{name}-sample_mean.png", sample_mean)
+    imsave(f"results/sd_res_robustness/{name}-mvm.png", mv_median)
+    imsave(f"results/sd_res_robustness/{name}-trimmed_mean.png", sample_mean)
     # # - Depth methods' trimmed means
     # other_est = [[i, ensemble[row[i][0]]] for i in ["ins_idx bod_fast", "ins_idx mbod_nest"]]
     #

@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from src.contour_depths.vis_utils import plot_contour_spaghetti, plot_contour_boxplot
+from src.vis_utils import plot_contour_spaghetti, plot_contour_boxplot
 from src.contour_depths.datasets import han_ensembles
 from src.contour_depths.datasets.bd_paper import get_han_dataset_ParotidR, get_han_dataset_BrainStem
 from src.contour_depths.depths import band_depth, boundary_depth

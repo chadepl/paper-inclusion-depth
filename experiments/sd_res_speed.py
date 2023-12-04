@@ -121,7 +121,7 @@ for t in leg.texts:
 
 plt.show()
 
-fig.savefig("/Users/chadepl/Downloads/speed_gains.svg")
+fig.savefig("results/sd_res_speed/speed_gains.svg")
 
 #########
 # TABLE #

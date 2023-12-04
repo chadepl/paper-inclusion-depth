@@ -1,0 +1,7 @@
+.idea
+.DS_Store
+results_data
+results
+data
+data_eda
+__pycache__

@@ -234,4 +234,4 @@ if False:
         line.set_linewidth(3)
 
     plt.show()
-    g.fig.savefig("/Users/chadepl/Downloads/outlier_overlap.png")
+    g.fig.savefig("results/sd_res_outliers/outlier_overlap.png")

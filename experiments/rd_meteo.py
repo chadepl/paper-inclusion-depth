@@ -12,7 +12,7 @@ if __name__ == "__main__":
     from skimage.measure import find_contours
 
     from src.contour_depths.depths import band_depth, boundary_depth
-    from src.contour_depths.vis_utils import plot_contour_boxplot, plot_contour_spaghetti
+    from src.vis_utils import plot_contour_boxplot, plot_contour_spaghetti
 
     data_dir = Path("/Users/chadepl/git/multimodal-contour-vis/data/cvp-paper-meteo/")
 

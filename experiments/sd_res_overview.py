@@ -3,7 +3,10 @@ import pickle
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from src.contour_depths.vis_utils import plot_contour_spaghetti, plot_contour_boxplot
+
+import sys
+sys.path.insert(0, "..")
+from src.vis_utils import plot_contour_spaghetti, plot_contour_boxplot
 
 #############
 # LOAD DATA #
@@ -108,7 +111,7 @@ for index, row in df_outs.iterrows():
     plot_contour_spaghetti([ensemble[i] for i in lab_sort], arr=[labels[i] for i in lab_sort], is_arr_categorical=True,
                            linewidth=1, alpha=0.5, smooth_line=False, ax=ax)
     plt.show()
-    fig.savefig(f"/Users/chadepl/Downloads/spa_outs-{row['dataset_name']}-{row['replication_id']}.svg")
+    fig.savefig(f"results/sd_res_overview/spa_outs-{row['dataset_name']}-{row['replication_id']}.svg")
 
 
     # num_out = np.where(np.isclose(row["depths mtbad"], 0))[0].size
