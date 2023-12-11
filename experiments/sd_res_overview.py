@@ -40,12 +40,12 @@ print(df_exp.head())
 #############
 
 selected_datasets = [
-    # "no_cont",
+    "no_cont",
     # "cont_mag_sym",
     # "cont_mag_peaks",
     # "cont_shape_in",
     # "cont_shape_out",
-    "cont_topo",
+    # "cont_topo",
 ]
 
 selected_methods = [
@@ -109,9 +109,10 @@ for index, row in df_outs.iterrows():
     fig, ax = plt.subplots(ncols=1, layout="tight", figsize=(10, 10))
     lab_sort = np.argsort(np.array(labels))
     plot_contour_spaghetti([ensemble[i] for i in lab_sort], arr=[labels[i] for i in lab_sort], is_arr_categorical=True,
-                           linewidth=1, alpha=0.5, smooth_line=False, ax=ax)
-    plt.show()
-    fig.savefig(f"results/sd_res_overview/spa_outs-{row['dataset_name']}-{row['replication_id']}.svg")
+                           linewidth=4, alpha=0.5, smooth_line=False, ax=ax)
+    # plt.show()
+    #fig.savefig(f"results/sd_res_overview/spa_outs-{row['dataset_name']}-{row['replication_id']}.svg")
+    fig.savefig(f"results/sd_res_overview/spa_outs-{row['dataset_name']}-{row['replication_id']}.png", dpi=300)
 
 
     # num_out = np.where(np.isclose(row["depths mtbad"], 0))[0].size
@@ -126,8 +127,8 @@ for index, row in df_outs.iterrows():
             # thresholds: topo (0.11)
             plot_contour_boxplot(ensemble, depths_ri, outlier_type="tail", epsilon_out=int(depths_ri.size * 0.2), smooth_line=False, ax=ax)
             # ax.set_title(ri)
-            plt.show()
-            fig.savefig(f"/Users/chadepl/Downloads/cbp-{row['dataset_name']}-{ri}-{row['replication_id']}.svg")
+            # plt.show()
+            fig.savefig(f"results/sd_res_overview/cbp-{row['dataset_name']}-{ri}-{row['replication_id']}.svg")
 
             # Spaghetti plot with depths
             vmin = vmax = 0
@@ -143,8 +144,8 @@ for index, row in df_outs.iterrows():
                                    linewidth=1, alpha=0.5, smooth_line=False,
                                    # vmin=vmin, vmax=vmax,
                                    ax=ax)
-            plt.show()
-            fig.savefig(f"/Users/chadepl/Downloads/spa_depths-{row['dataset_name']}-{ri}-{row['replication_id']}.svg")
+            # plt.show()
+            fig.savefig(f"results/sd_res_overview/spa_depths-{row['dataset_name']}-{ri}-{row['replication_id']}.svg")
     break
 
 
@@ -156,4 +157,4 @@ fig, ax = plt.subplots(figsize=(10, 3), layout="tight")
 ax.matshow(x, cmap="magma")
 ax.set_axis_off()
 #plt.show()
-fig.savefig("/Users/chadepl/Downloads/colorbar.png")
+fig.savefig("results/sd_res_overview/colorbar.png")
