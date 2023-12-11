@@ -3,6 +3,8 @@
 .vscode
 results_data
 results
-data
 data_eda
 __pycache__
+
+data/*
+!*.md
