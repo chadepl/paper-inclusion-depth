@@ -7,7 +7,7 @@ Code for the paper Inclusion Depth for Contour Ensembles.
 This repository contains the code for the paper:
 > Chaves-de-Plaza, N.F., Mody, P., Staring, M., van Egmond, R., Vilanova, A., Hildebrandt, K., Inclusion Depth for Contour Ensembles, 2024, IEEE TCVG (under revision).
 
-![fig 5 of the paper](fig5.png)
+![fig 5 of the paper](fig-header.png)
 
 If you use our code in your publications please consider citing:
 ```
@@ -36,7 +36,9 @@ If you use our code in your publications please consider citing:
 
 ## Replicating the paper results
 
-TODO
+The scripts in the `experiments` directory permit replicating the paper's results.
+The prefixes `sd` and `rd` denote synthetic data and real data experiments. `sd_exp_data.py` generates data for `sd` experiments. The files `sd_res_*` generate the figures and tables in the paper.
+The real data is available from the authors upon request. 
 
 ## License and third-party software
 The source code in this repository is released under the MIT License. However, all used third-party software libraries are governed by their own respective licenes. Without the following libraries, this project would have been considerably harder: 
