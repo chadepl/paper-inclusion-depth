@@ -51,13 +51,13 @@ selected_datasets = [
 selected_methods = [
     "cbd",
     "mcbd",
-    "bod",
-    "mbod",
+    "id",
+    "mid",
 ]
 
 selected_methods_families = {
     "cbd": "red",
-    "bod": "blue"
+    "id": "blue"
 }
 
 selected_replica = dict(
@@ -134,7 +134,7 @@ for index, row in df_outs.iterrows():
             vmin = vmax = 0
             if "cbd" in ri:
                 vmax = 1
-            if "bod" in ri:
+            if "id" in ri:
                 vmax = 0.5
 
             fig, ax = plt.subplots(ncols=1, layout="tight", figsize=(10, 10))

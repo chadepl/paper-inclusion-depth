@@ -285,16 +285,16 @@ def get_problematic_case(num_rows, num_cols):
 
     return ensemble
 
-def get_han_dataset_ParotidR(num_rows, num_cols):
+def get_han_dataset_ParotidR(num_rows, num_cols, path_to_ensembles):
     from src.datasets.han_ensembles import get_han_slice_ensemble
-    img, gt, ensemble_masks = get_han_slice_ensemble(num_rows, num_cols, patient_id=0, structure_name="Parotid_R",
+    img, gt, ensemble_masks = get_han_slice_ensemble(num_rows, num_cols, path_to_ensembles, patient_id=0, structure_name="Parotid_R",
                                                      slice_num=41)
     return img, gt, ensemble_masks
 
 
-def get_han_dataset_BrainStem(num_rows, num_cols):
+def get_han_dataset_BrainStem(num_rows, num_cols, path_to_ensembles):
     from src.datasets.han_ensembles import get_han_slice_ensemble
-    img, gt, ensemble_masks = get_han_slice_ensemble(num_rows, num_cols, patient_id=0, structure_name="BrainStem",
+    img, gt, ensemble_masks = get_han_slice_ensemble(num_rows, num_cols, path_to_ensembles, patient_id=0, structure_name="BrainStem",
                                                      slice_num=31)
     return img, gt, ensemble_masks
 

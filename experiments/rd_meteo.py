@@ -65,38 +65,38 @@ if __name__ == "__main__":
     cbd_depths = band_depth.compute_depths(bin_masks, modified=True, target_mean_depth=None)
     print(f"cbd: {time() - t_tick}")
     t_tick = time()
-    bod_depths = inclusion_depth.compute_depths(bin_masks, modified=True)
-    print(f"bod: {time() - t_tick}")
+    id_depths = inclusion_depth.compute_depths(bin_masks, modified=True)
+    print(f"id: {time() - t_tick}")
     print()
     # print(cbd_depths)
-    # print(bod_depths)
+    # print(id_depths)
 
 
     print("Outliers")
     out_mcbd = np.argsort(cbd_depths)[:10]
-    out_mbod = np.argsort(bod_depths)[:10]
-    print(f"{np.intersect1d(out_mbod, out_mcbd).size}/12")
+    out_mid = np.argsort(id_depths)[:10]
+    print(f"{np.intersect1d(out_mid, out_mcbd).size}/12")
     print(out_mcbd)
-    print(out_mbod)
+    print(out_mid)
 
     print("Inliers")
     in_mcbd = np.argsort(cbd_depths)[::-1][:41]
-    in_mbod = np.argsort(bod_depths)[::-1][:41]
-    print(f"{np.intersect1d(in_mbod, in_mcbd).size}/100")
+    in_mid = np.argsort(id_depths)[::-1][:41]
+    print(f"{np.intersect1d(in_mid, in_mcbd).size}/100")
     print(in_mcbd)
-    print(in_mbod)
+    print(in_mid)
 
     print("Score correlation")
-    print(np.corrcoef(cbd_depths, bod_depths))
+    print(np.corrcoef(cbd_depths, id_depths))
 
     print("Masks comparison")
     med_cbd = bin_masks[in_mcbd[0]]
-    med_bod = bin_masks[in_mbod[0]]
+    med_id = bin_masks[in_mid[0]]
     mean_cbd = (np.array([bin_masks[e] for e in in_mcbd]).mean(axis=0)>0.5).astype(float)
-    mean_bod = (np.array([bin_masks[e] for e in in_mbod]).mean(axis=0)>0.5).astype(float)
+    mean_id = (np.array([bin_masks[e] for e in in_mid]).mean(axis=0)>0.5).astype(float)
 
-    print(f"MSE Med: {np.square(med_cbd - med_bod).mean()}")
-    print(f"MSE Mean: {np.square(mean_cbd - mean_bod).mean()}")
+    print(f"MSE Med: {np.square(med_cbd - med_id).mean()}")
+    print(f"MSE Mean: {np.square(mean_cbd - mean_id).mean()}")
 
     #################
     # Data overview #
@@ -174,11 +174,11 @@ if __name__ == "__main__":
         #bin_masks = [bin_masks[i] for i in range(0, 20)]#np.random.choice(np.arange(len(bin_masks)), 10, replace=False)]
 
         plot_contours(bin_masks, cbd_depths, fname="/Users/chadepl/Downloads/cbd-meteo.png")
-        plot_contours(bin_masks, bod_depths, fname="/Users/chadepl/Downloads/bod-meteo.png")
+        plot_contours(bin_masks, id_depths, fname="/Users/chadepl/Downloads/id-meteo.png")
 
         fig, axs = plt.subplots(nrows=2)
         plot_contour_boxplot(bin_masks, cbd_depths, epsilon_out=int(len(bin_masks)*0.2), axis_off=False, smooth_line=False, ax=axs[0])
-        plot_contour_boxplot(bin_masks, bod_depths, epsilon_out=int(len(bin_masks)*0.2), axis_off=False, smooth_line=False, ax=axs[1])
+        plot_contour_boxplot(bin_masks, id_depths, epsilon_out=int(len(bin_masks)*0.2), axis_off=False, smooth_line=False, ax=axs[1])
         for ax in axs:
             ax.set_xlim(0, 101)
             ax.set_ylim(0, 41)
@@ -197,15 +197,15 @@ if __name__ == "__main__":
 
         fig, ax = plt.subplots(layout="tight")
         plot_contour_boxplot(bin_masks,
-                            bod_depths,
+                            id_depths,
                             epsilon_out=int(len(bin_masks) * 0.2),
                             axis_off=True,
                             smooth_line=False, ax=ax)
         ax.invert_yaxis()
-        fig.savefig("/Users/chadepl/Downloads/bod-bp-meteo.png")
+        fig.savefig("/Users/chadepl/Downloads/id-bp-meteo.png")
 
 
-        plt.scatter(cbd_depths, bod_depths)
+        plt.scatter(cbd_depths, id_depths)
         plt.show()
 
 
@@ -247,6 +247,6 @@ if __name__ == "__main__":
         if fname is not None:
             fig.savefig(fname)
 
-    plot_masks([med_cbd, med_bod], ["gold", "gold"], ["solid", "dotted"], [2, 4], fname="/Users/chadepl/Downloads/meteo-cbd-vs-id-med.png")
-    plot_masks([mean_cbd, mean_bod], ["dodgerblue", "dodgerblue"], ["solid", "dotted"], [2, 4], fname="/Users/chadepl/Downloads/meteo-cbd-vs-id-mean.png")
+    plot_masks([med_cbd, med_id], ["gold", "gold"], ["solid", "dotted"], [2, 4], fname="/Users/chadepl/Downloads/meteo-cbd-vs-id-med.png")
+    plot_masks([mean_cbd, mean_id], ["dodgerblue", "dodgerblue"], ["solid", "dotted"], [2, 4], fname="/Users/chadepl/Downloads/meteo-cbd-vs-id-mean.png")
 

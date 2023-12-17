@@ -75,13 +75,13 @@ selected_datasets = [
 selected_methods = [
     "cbd",
     "mcbd",
-    "bod",
-    "mbod",
+    "id",
+    "mid",
 ]
 
 selected_methods_families = {
     "cbd": "red",
-    "bod": "blue"
+    "id": "blue"
 }
 
 # Filtering
@@ -89,7 +89,7 @@ df_exp = df_exp.loc[df_exp["dataset_name"].apply(lambda v: v in selected_dataset
 df_exp = df_exp.loc[df_exp["method"].apply(lambda v: v in selected_methods)]
 df_exp = df_exp.loc[df_exp["method_family"].apply(lambda v: v in list(selected_methods_families.keys()))]
 df_exp = df_exp.loc[df_exp["replication_id"] < 10]
-df_exp = df_exp.loc[df_exp["size"] == 100]  # so that we compare the same for CBD and BoD
+df_exp = df_exp.loc[df_exp["size"] == 100]  # so that we compare the same for CBD and ID
 
 ###############
 # DF ASSEMBLY #
@@ -107,7 +107,7 @@ df_ins = df_ins.merge(df_datasets, left_on=index_cols, right_on=index_cols, how=
 
 
 # Per row (dataset, size, replication), compute the estimators and compare them to f()
-# Estimators we consider: sample mean (WC), MVM, robust mean CBD, mCBD, BOD, mBOD
+# Estimators we consider: sample mean (WC), MVM, robust mean CBD, mCBD, ID, mID
 stats_df = []
 statistic = ["median", "trimmed_mean"][1]
 for index, row in df_ins.iterrows():
@@ -157,7 +157,7 @@ for index, row in df_ins.iterrows():
     imsave(f"results/sd_res_robustness/{name}-mvm.png", mv_median)
     imsave(f"results/sd_res_robustness/{name}-trimmed_mean.png", sample_mean)
     # # - Depth methods' trimmed means
-    # other_est = [[i, ensemble[row[i][0]]] for i in ["ins_idx bod_fast", "ins_idx mbod_nest"]]
+    # other_est = [[i, ensemble[row[i][0]]] for i in ["ins_idx id_fast", "ins_idx mid_nest"]]
     #
     # diffs = []
     # for om_n, om_id in other_est:
@@ -172,7 +172,7 @@ for index, row in df_ins.iterrows():
     # iso_mean_arr_ref_est = (mean_arr_ref_est >= 0.5).astype(float)
     # ref_est = ["ins_idx mtbad", mean_arr_ref_est]
     # other_est = []
-    # for i in ["ins_idx bod_fast", "ins_idx mbod_nest"]:
+    # for i in ["ins_idx id_fast", "ins_idx mid_nest"]:
     #     mean_arr = np.concatenate([ensemble[j][:, :, np.newaxis] for j in row[i]], axis=-1).mean(axis=-1).squeeze()
     #     iso_mean = (mean_arr >= 0.5).astype(float)
     #     other_est.append([i, iso_mean])
@@ -237,18 +237,18 @@ formatted_latex_table = formatted_latex_table.groupby(["statistic", "method"]).a
     lambda r: f"{r[0]:2.2f} pm {r[1]:2.2f}")
 formatted_latex_table = formatted_latex_table.T
 formatted_latex_table = formatted_latex_table.droplevel(0, axis=1)
-#formatted_latex_table = formatted_latex_table[["sample_mean", "mvm", "trimmed_mean_cbd", "trimmed_mean_mcbd", "trimmed_mean_bod", "trimmed_mean_mbod"]]
-formatted_latex_table = formatted_latex_table[["sample_mean", "trimmed_mean_cbd", "trimmed_mean_mcbd", "trimmed_mean_bod", "trimmed_mean_mbod"]]
-#formatted_latex_table.columns = ["SM", "MVM", "mu_CBD", "mu_mCBD", "mu_BOD", "mu_mBOD"]
-formatted_latex_table.columns = ["SM", "mu_CBD", "mu_mCBD", "mu_BOD", "mu_mBOD"]
+#formatted_latex_table = formatted_latex_table[["sample_mean", "mvm", "trimmed_mean_cbd", "trimmed_mean_mcbd", "trimmed_mean_id", "trimmed_mean_mid"]]
+formatted_latex_table = formatted_latex_table[["sample_mean", "trimmed_mean_cbd", "trimmed_mean_mcbd", "trimmed_mean_id", "trimmed_mean_mid"]]
+#formatted_latex_table.columns = ["SM", "MVM", "mu_CBD", "mu_mCBD", "mu_id", "mu_mid"]
+formatted_latex_table.columns = ["SM", "mu_CBD", "mu_mCBD", "mu_id", "mu_mid"]
 print(formatted_latex_table.to_latex())
 
 # latex_df = latex_df[["cont_mag_sym", "cont_mag_peaks", "cont_shape_in", "cont_shape_out"]]
 # latex_df.columns = latex_df.columns.set_levels(["D1", "D2", "D3", "D4"], level=1)
 # latex_df.columns.set_levels = ["D1", "D2", "D3", "D4"]
 # latex_df.columns = [e[1] for e in latex_df.columns.to_flat_index()]
-# latex_df = latex_df.reindex(["mtbad", "bod_base", "mbod_nest"], axis=1)
-# latex_df = latex_df.rename(dict(mtbad="CBD", bod_base="BoD", mbod_nest="wBoD"), axis=1)
+# latex_df = latex_df.reindex(["mtbad", "id_base", "mid_nest"], axis=1)
+# latex_df = latex_df.rename(dict(mtbad="CBD", id_base="ID", mid_nest="eID"), axis=1)
 # print(latex_df.to_latex(float_format="%.4f"))
 
 # g = sns.FacetGrid(stats_df, col="dataset_name", col_wrap=2)

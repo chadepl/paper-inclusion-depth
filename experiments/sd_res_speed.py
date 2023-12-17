@@ -58,13 +58,13 @@ selected_datasets = [
 selected_methods = dict(
     cbd = cb_colors["purple"],
     mcbd = cb_colors["orange"],
-    bod = cb_colors["blue"],
-    mbod=cb_colors["green"],
+    id = cb_colors["blue"],
+    mid=cb_colors["green"],
 )
 
 selected_methods_families = {
     "cbd": cb_colors["blue"],
-    "bod": cb_colors["red"]
+    "id": cb_colors["red"]
 }
 
 # New columns
@@ -108,9 +108,9 @@ for line in leg.get_lines():
     line.set_linewidth(3)
 print(leg.texts)
 for t in leg.texts:
-    if t.get_text() == "bod":
+    if t.get_text() == "id":
         t.set_text("ID")
-    if t.get_text() == "mbod":
+    if t.get_text() == "mid":
         t.set_text("eID")
     if t.get_text() == "cbd":
         t.set_text("CBD")
@@ -168,14 +168,14 @@ formatted_latex_table = formatted_latex_table.groupby("method").apply(
 #formatted_latex_table = formatted_latex_table.T
 #formatted_latex_table = formatted_latex_table.droplevel(0, axis=1)
 formatted_latex_table = formatted_latex_table.loc[:, ["t1", "t2", "t3"]]
-formatted_latex_table = formatted_latex_table.loc[["cbd", "mcbd", "bod", "mbod"],:]
+formatted_latex_table = formatted_latex_table.loc[["cbd", "mcbd", "id", "mid"],:]
 formatted_latex_table = formatted_latex_table.reset_index()
 
 def change_method_lab(m):
-    return dict(cbd="CBD", mcbd="mCBD", bod="BoD", mbod="mBoD")[m]
+    return dict(cbd="CBD", mcbd="mCBD", id="ID", mid="eID")[m]
 formatted_latex_table["method"] = formatted_latex_table["method"].apply(change_method_lab)
 
-#formatted_latex_table.rows = ["WC (x10^-3)", "BoD (x10^-5)", "wBoD (x10^-5)"]
+#formatted_latex_table.rows = ["WC (x10^-3)", "ID (x10^-5)", "eID (x10^-5)"]
 print(formatted_latex_table.to_latex())
 
 #latex_df.index = latex_df.index.set_levels([dataset_names_dict[n] for n in latex_df.index.get_level_values(level=0)], level=0)

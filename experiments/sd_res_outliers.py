@@ -1,5 +1,5 @@
 """
-In this file we compare the performance of BAD and BOD
+In this file we compare the performance of CBD and ID
 methods in terms of their capability to identify outliers.
 """
 
@@ -66,13 +66,13 @@ selected_datasets = [
 selected_methods = [
     "cbd",
     "mcbd",
-    "bod",
-    "mbod",
+    "id",
+    "mid",
 ]
 
 selected_methods_families = {
     "cbd": "red",
-    "bod": "blue"
+    "id": "blue"
 }
 
 # Filtering
@@ -80,7 +80,7 @@ df_exp = df_exp.loc[df_exp["dataset_name"].apply(lambda v: v in selected_dataset
 df_exp = df_exp.loc[df_exp["method"].apply(lambda v: v in selected_methods)]
 df_exp = df_exp.loc[df_exp["method_family"].apply(lambda v: v in list(selected_methods_families.keys()))]
 df_exp = df_exp.loc[df_exp["replication_id"] < 10]
-df_exp = df_exp.loc[df_exp["size"] == 100]  # so that we compare the same for CBD and BoD
+df_exp = df_exp.loc[df_exp["size"] == 100]  # so that we compare the same for CBD and id
 
 ###############
 # DF ASSEMBLY #
@@ -115,7 +115,7 @@ def perc_outliers_identified(out_method, out_ref, adjust_size=False):
 
 
 cols = [c for c in df_outs.columns if
-        "outs_idx" in c]  # ["outs_idx bad", "outs_idx mbad", "outs_idx mtbad"]#"outs_idx bod", "outs_idx mbod"]  # columns in pivoted table
+        "outs_idx" in c]  # ["outs_idx bad", "outs_idx mbad", "outs_idx mtbad"]#"outs_idx id", "outs_idx mid"]  # columns in pivoted table
 # cols = df_outs
 new_cols = []  # columns we are interested in for the analysis
 
@@ -192,8 +192,8 @@ formatted_latex_table = formatted_latex_table.T
 formatted_latex_table = formatted_latex_table.groupby(["method", ]).agg(
     lambda r: f"{r[0]:.2f} pm {r[1]:.2f}")
 formatted_latex_table = formatted_latex_table.T
-formatted_latex_table = formatted_latex_table[["cbd", "mcbd", "bod", "mbod"]]
-formatted_latex_table.columns = ["CBD", "mCBD", "BoD", "mBoD"]
+formatted_latex_table = formatted_latex_table[["cbd", "mcbd", "id", "mid"]]
+formatted_latex_table.columns = ["CBD", "mCBD", "ID", "eID"]
 print(formatted_latex_table.to_latex())
 
 # latex_df = latex_df.T
@@ -202,8 +202,8 @@ print(formatted_latex_table.to_latex())
 # latex_df.columns = latex_df.columns.set_levels(["D1", "D2", "D3", "D4"], level=1)
 # latex_df.columns.set_levels = ["D1", "D2", "D3", "D4"]
 # latex_df.columns = [e[1] for e in latex_df.columns.to_flat_index()]
-# latex_df = latex_df.reindex(["mtbad", "bod_base", "mbod_nest"], axis=1)
-# latex_df = latex_df.rename(dict(mtbad="CBD", bod_base="BoD", mbod_nest="wBoD"), axis=1)
+# latex_df = latex_df.reindex(["mtbad", "id_base", "mid_nest"], axis=1)
+# latex_df = latex_df.rename(dict(mtbad="CBD", id_base="ID", mid_nest="eID"), axis=1)
 # print(latex_df.to_latex(float_format="%.2f"))
 
 ############

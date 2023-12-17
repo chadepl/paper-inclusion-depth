@@ -66,8 +66,8 @@ datasets = dict(
 methods = dict(
     # cbd=lambda ensemble, td: band_depth.compute_depths(ensemble, modified=False, times_dict=td),
     # mcbd=lambda ensemble, td: band_depth.compute_depths(ensemble, modified=True, target_mean_depth=None, times_dict=td),
-    # bod=lambda ensemble, td: boundary_depth.compute_depths(ensemble, modified=False, times_dict=td),
-    mbod=lambda ensemble, td: inclusion_depth.compute_depths(ensemble, modified=True, times_dict=td)
+    # id=lambda ensemble, td: boundary_depth.compute_depths(ensemble, modified=False, times_dict=td),
+    mid=lambda ensemble, td: inclusion_depth.compute_depths(ensemble, modified=True, times_dict=td)
 )
 
 for method_name, method_fn in methods.items():
@@ -117,7 +117,7 @@ for method_name, method_fn in methods.items():
                         depths = method_fn(ensemble, entry)  # each method logs its times
 
                         entry["method"] = method_name
-                        entry["method_family"] = "cbd" if "cbd" in method_name else "bod"
+                        entry["method_family"] = "cbd" if "cbd" in method_name else "id"
                         entry[f"depths"] = depths
 
                         entries.append(entry)
