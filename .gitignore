@@ -5,6 +5,6 @@ results_data
 results
 data_eda
 __pycache__
-
+.vscode
 data/*
 !*.md
