@@ -41,6 +41,4 @@ The prefixes `sd` and `rd` denote synthetic data and real data experiments. `sd_
 The real data is available from the authors upon request. 
 
 ## License and third-party software
-The source code in this repository is released under the MIT License. However, all used third-party software libraries are governed by their own respective licenes. Without the following libraries, this project would have been considerably harder: 
-[scipy](https://scipy.org),
-[TODO](https://numpy.org),
+The source code in this repository is released under the MIT License. However, all used third-party software libraries are governed by their own respective licenes. Without the libraries listed in `requirements.txt`, this project would have been considerably harder.
