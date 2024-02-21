@@ -2,29 +2,29 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Code for the paper Inclusion Depth for Contour Ensembles.
+Code for the paper [Inclusion Depth for Contour Ensembles](https://ieeexplore.ieee.org/document/10381751).
 
 This repository contains the code for the paper:
-> Chaves-de-Plaza, N.F., Mody, P., Staring, M., van Egmond, R., Vilanova, A., Hildebrandt, K., Inclusion Depth for Contour Ensembles, 2024, IEEE TCVG (under revision).
+> N. F. Chaves-de-Plaza, P. Mody, M. Staring, R. van Egmond, A. Vilanova and K. Hildebrandt, "Inclusion Depth for Contour Ensembles," in IEEE Transactions on Visualization and Computer Graphics, doi: 10.1109/TVCG.2024.3350076.
 
 ![fig 5 of the paper](fig-header.png)
 
-If you use our code in your publications please consider citing:
+If you use our code in your publications, please consider citing:
 ```
 @article{chavesdeplaza2024inclusiondepth,
-    title={Inclusion Depth for Contour Ensembles},
-    author={Chaves-de-Plaza, Nicolas and Mody, Prerak and Staring, Marius and van Egmond, Ren\'{e} and Vilanova, Anna and Hildebrandt, Klaus},
-    journal={IEEE Transactions on Visualization and Computer Graphics},
-    year={2024},
-    volume={TODO},
-    number={TODO},
-    pages={TODO},    
-    doi={TODO},
-    eprint={TODO}
+  author={Chaves-de-Plaza, Nicolas F. and Mody, Prerak and Staring, Marius and van Egmond, René and Vilanova, Anna and Hildebrandt, Klaus},
+  journal={IEEE Transactions on Visualization and Computer Graphics}, 
+  title={Inclusion Depth for Contour Ensembles}, 
+  year={2024},
+  volume={},
+  number={},
+  pages={1-12},
+  keywords={Data visualization;Visualization;Uncertainty;Feature extraction;Data models;Computational modeling;Semantic segmentation;Uncertainty visualization;contours;ensemble summarization;depth statistics},
+  doi={10.1109/TVCG.2024.3350076}
 }
 ```
 
-[Future link to paper]
+Also, consider checking our [extension of inclusion depth to multimodal contour ensembles](https://graphics.tudelft.nl/paper-multimodal-contour-depth). And, if you want to integrate contour depth in your project, check out the [`contour-depth` Python package](https://graphics.tudelft.nl/contour-depth).
 
 ## Setup
 
